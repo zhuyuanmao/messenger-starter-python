@@ -1,4 +1,5 @@
 from django.contrib.auth.middleware import get_user
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from messenger_backend.models import Conversation, Message
 from online_users import online_users
@@ -24,13 +25,20 @@ class Messages(APIView):
 
             # if we already know conversation id, we can save time and just add it to message and return
             if conversation_id:
-                conversation = Conversation.objects.filter(id=conversation_id).first()
-                message = Message(
-                    senderId=sender_id, text=text, conversation=conversation
+                conversation = Conversation.objects.filter(id=conversation_id).filter(
+                    Q(user1=sender_id) | Q(user2=sender_id))
+                if conversation:
+                    message = Message(
+                        senderId=sender_id, text=text, conversation=conversation.first()
+                    )
+                    message.save()
+                    message_json = message.to_dict()
+                    return JsonResponse({"message": message_json, "sender": body["sender"]})
+                return JsonResponse(
+                    data={"error":"can not send messages to converstions you are not particiapated in."},
+                    status=400
                 )
-                message.save()
-                message_json = message.to_dict()
-                return JsonResponse({"message": message_json, "sender": body["sender"]})
+                
 
             # if we don't have conversation id, find a conversation to m       ake sure it doesn't already exist
             conversation = Conversation.find_conversation(sender_id, recipient_id)
