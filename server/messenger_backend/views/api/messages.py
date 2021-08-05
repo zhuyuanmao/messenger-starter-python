@@ -27,18 +27,17 @@ class Messages(APIView):
             if conversation_id:
                 conversation = Conversation.objects.filter(id=conversation_id).filter(
                     Q(user1=sender_id) | Q(user2=sender_id))
-                if conversation:
-                    message = Message(
-                        senderId=sender_id, text=text, conversation=conversation.first()
+                if not conversation:
+                    return JsonResponse(
+                        data={"error":"can not send messages to converstions you are not particiapated in."},
+                        status=403
                     )
-                    message.save()
-                    message_json = message.to_dict()
-                    return JsonResponse({"message": message_json, "sender": body["sender"]})
-                return JsonResponse(
-                    data={"error":"can not send messages to converstions you are not particiapated in."},
-                    status=400
+                message = Message(
+                    senderId=sender_id, text=text, conversation=conversation.first()
                 )
-                
+                message.save()
+                message_json = message.to_dict()
+                return JsonResponse({"message": message_json, "sender": body["sender"]})
 
             # if we don't have conversation id, find a conversation to m       ake sure it doesn't already exist
             conversation = Conversation.find_conversation(sender_id, recipient_id)
