@@ -16,10 +16,10 @@ const styles = {
     "&:hover": {
       cursor: "grab",
     },
+  },
   badge: {
     marginRight: 20,
   }
-  },
 };
 
 class Chat extends Component {
