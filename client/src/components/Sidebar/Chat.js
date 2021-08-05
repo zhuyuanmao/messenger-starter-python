@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Box } from "@material-ui/core";
+import { Box, Badge } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { withStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
@@ -16,6 +16,9 @@ const styles = {
     "&:hover": {
       cursor: "grab",
     },
+  badge: {
+    marginRight: 20,
+  }
   },
 };
 
@@ -39,9 +42,21 @@ class Chat extends Component {
           sidebar={true}
         />
         <ChatContent conversation={this.props.conversation} />
+        <Badge
+          className={classes.badge}
+          badgeContent={getUnreadMessagesCount(this.props.conversation)} 
+          color="primary"
+        >
+        </Badge>
       </Box>
     );
   }
+}
+
+const getUnreadMessagesCount = (conversation) => {
+  return conversation.messages.filter(
+    msg => msg.readStatus === false && msg.senderId === conversation.otherUser.id
+  ).length;
 }
 
 const mapDispatchToProps = (dispatch) => {
