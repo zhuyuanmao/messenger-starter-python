@@ -58,6 +58,10 @@ class Conversations(APIView):
                 else:
                     convo_dict["otherUser"]["online"] = False
 
+                # set property for the number of unread messages
+                counts = convo.messages.all().exclude(senderId=user_id).filter(readStatus=False).count()
+                convo_dict["unreadMessagesCount"] = counts
+
                 conversations_response.append(convo_dict)
             conversations_response.sort(
                 key=lambda convo: convo["messages"][0]["createdAt"],
@@ -69,3 +73,26 @@ class Conversations(APIView):
             )
         except Exception as e:
             return HttpResponse(status=500)
+    
+    def patch(self,request:Request, convo_id):
+        """update all messages in given conversation to read status.
+        """
+        try:
+            user = get_user(request)
+
+            if user.is_anonymous:
+                return HttpResponse(status=401)
+            user_id = user.id
+            convo =  Conversation.objects.filter(id=convo_id).filter(Q(user1=user_id) | Q(user2=user_id))
+            if not convo:
+                return JsonResponse(
+                    data={"error":"can not find the conversation"},
+                    safe=False,
+                )
+            convo = convo.first()
+            convo.messages.all().update(readStatus=True)
+            return HttpResponse(status=200)
+
+        except Exception as e:
+            return HttpResponse(status=500)
+        

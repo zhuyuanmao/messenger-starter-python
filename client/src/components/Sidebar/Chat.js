@@ -30,6 +30,7 @@ class Chat extends Component {
   render() {
     const { classes } = this.props;
     const otherUser = this.props.conversation.otherUser;
+    const {unreadMessagesCount} = this.props.conversation;
     return (
       <Box
         onClick={() => this.handleClick(this.props.conversation)}
@@ -44,7 +45,7 @@ class Chat extends Component {
         <ChatContent conversation={this.props.conversation} />
         <Badge
           className={classes.badge}
-          badgeContent={getUnreadMessagesCount(this.props.conversation)} 
+          badgeContent={unreadMessagesCount} 
           color="primary"
         >
         </Badge>
@@ -53,11 +54,6 @@ class Chat extends Component {
   }
 }
 
-const getUnreadMessagesCount = (conversation) => {
-  return conversation.messages.filter(
-    msg => msg.readStatus === false && msg.senderId === conversation.otherUser.id
-  ).length;
-}
 
 const mapDispatchToProps = (dispatch) => {
   return {
