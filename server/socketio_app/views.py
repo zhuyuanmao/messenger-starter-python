@@ -17,7 +17,7 @@ def connect(sid, environ):
 @sio.on("go-online")
 def go_online(sid, user_id):
     if user_id not in online_users:
-        online_users.append(user_id)
+        online_users.add(user_id)
     sio.emit("add-online-user", user_id, skip_sid=sid)
 
 
