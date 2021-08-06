@@ -1,6 +1,10 @@
+import os
+import jwt
+from messenger_backend.settings import SECRET_KEY
+from messenger_backend.models import User
 from online_users import online_users
 import socketio
-import os
+
 async_mode = None
 
 
@@ -10,7 +14,18 @@ thread = None
 
 
 @sio.event
-def connect(sid, environ):
+def connect(sid, environ, auth):
+    token = auth.get("token", None)
+    user = None
+    print(auth)
+    try:
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user = User.get_by_id(decoded["id"])
+    except (jwt.ExpiredSignatureError, jwt.InvalidSignatureError, jwt.DecodeError):
+        raise Exception("Authentication failed.")
+    if not user:
+        raise Exception("Can not find the user.")
+
     sio.emit("my_response", {"data": "Connected", "count": 0}, room=sid)
 
 
