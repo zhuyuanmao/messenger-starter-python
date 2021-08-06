@@ -61,11 +61,10 @@ export const clearSearchedUsers = () => {
   };
 };
 
-export const realAllMessages = (conversationId,lastReadMessage) => {
-  console.log("DEBUG",conversationId,lastReadMessage)
+export const realAllMessages = (conversationId,lastReadMessageId) => {
   return {
     type: READ_ALL_MESSAGES,
-    payload:{ conversationId, lastReadMessage: lastReadMessage || null },
+    payload:{ conversationId, lastReadMessageId: lastReadMessageId || null },
   }
 };
 

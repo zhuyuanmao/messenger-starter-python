@@ -41,13 +41,13 @@ export const addOnlineUserToStore = (state, id) => {
 };
 
 export const updateUnreadMessagesCountToStore = (state, payload) =>{
-  const { lastReadMessage, conversationId } = payload;
+  const { lastReadMessageId, conversationId } = payload;
   return state.map((convo) => {
     if (convo.id === conversationId){
       const convoCopy = { ...convo };
       convoCopy.boldedPreviewText = false;
-      if (lastReadMessage !== null){
-        convoCopy.lastReadMessage = lastReadMessage;
+      if (lastReadMessageId !== null){
+        convoCopy.lastReadMessageId = lastReadMessageId;
       }
       convoCopy.unreadMessagesCount = 0;
       return convoCopy
