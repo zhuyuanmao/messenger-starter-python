@@ -17,7 +17,6 @@ thread = None
 def connect(sid, environ, auth):
     token = auth.get("token", None)
     user = None
-    print(auth)
     try:
         decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         user = User.get_by_id(decoded["id"])
@@ -25,7 +24,6 @@ def connect(sid, environ, auth):
         raise Exception("Authentication failed.")
     if not user:
         raise Exception("Can not find the user.")
-
     sio.emit("my_response", {"data": "Connected", "count": 0}, room=sid)
 
 
