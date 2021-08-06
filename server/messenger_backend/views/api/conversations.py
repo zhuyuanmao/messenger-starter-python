@@ -22,7 +22,8 @@ class Conversations(APIView):
             user_id = user.id
 
             conversations = (
-                Conversation.objects.filter(Q(user1=user_id) | Q(user2=user_id))
+                Conversation.objects.filter(
+                    Q(user1=user_id) | Q(user2=user_id))
                 .prefetch_related(
                     Prefetch(
                         "messages", queryset=Message.objects.order_by("createdAt")
@@ -37,7 +38,8 @@ class Conversations(APIView):
                 convo_dict = {
                     "id": convo.id,
                     "messages": [
-                        message.to_dict(["id", "text", "senderId", "createdAt"])
+                        message.to_dict(
+                            ["id", "text", "senderId", "readStatus", "createdAt"])
                         for message in convo.messages.all()
                     ],
                 }
@@ -58,6 +60,18 @@ class Conversations(APIView):
                 else:
                     convo_dict["otherUser"]["online"] = False
 
+                # set property for the number of unread messages
+                counts = convo.messages.all().exclude(
+                    senderId=user_id).filter(readStatus=False).count()
+                convo_dict["unreadMessagesCount"] = counts
+
+                # set property for last read message.
+                convo_dict["lastReadMessageId"] = -1
+                msgs = convo.messages.all().filter(
+                    readStatus=True).filter(senderId=user_id).order_by("-createdAt")
+                if msgs:
+                    convo_dict["lastReadMessageId"] = msgs.first().id
+
                 conversations_response.append(convo_dict)
             conversations_response.sort(
                 key=lambda convo: convo["messages"][-1]["createdAt"],
@@ -67,5 +81,40 @@ class Conversations(APIView):
                 conversations_response,
                 safe=False,
             )
+        except Exception as e:
+            return HttpResponse(status=500)
+
+    def patch(self, request: Request, convo_id):
+        """update all messages in given conversation to read status.
+        """
+        try:
+            user = get_user(request)
+
+            if user.is_anonymous:
+                return HttpResponse(status=401)
+            user_id = user.id
+            convo = Conversation.objects.filter(id=convo_id).filter(
+                Q(user1=user_id) | Q(user2=user_id))
+            if not convo:
+                return JsonResponse(
+                    data={"error": "can not find the conversation"},
+                    safe=False,
+                )
+            convo = convo.first()
+            convo.messages.all().exclude(senderId=user_id).update(readStatus=True)
+
+            last_read_msg = -1
+            msgs = convo.messages.all().filter(
+                readStatus=True).exclude(senderId=user_id).order_by("-createdAt")
+            if msgs:
+                last_read_msg = msgs.first().id
+
+            return JsonResponse(
+                data={"lastReadMessageId": last_read_msg,
+                      "conversationId": convo.id},
+                status=200,
+                safe=False
+            )
+
         except Exception as e:
             return HttpResponse(status=500)

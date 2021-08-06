@@ -18,6 +18,12 @@ const useStyles = makeStyles((theme) => ({
     color: "#9CADC8",
     letterSpacing: -0.17,
   },
+  unreadPreviewText: {
+    fontSize: 12,
+    color: "#212121",
+    letterSpacing: -0.17,
+    fontWeight: "bold",
+  }
 }));
 
 const ChatContent = (props) => {
@@ -25,14 +31,16 @@ const ChatContent = (props) => {
 
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
-
+  const lastMsg = conversation.messages[conversation.messages.length-1]
   return (
     <Box className={classes.root}>
       <Box>
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
+        <Typography 
+          className={!lastMsg.readStatus ?classes.unreadPreviewText: classes.previewText }
+        >
           {latestMessageText}
         </Typography>
       </Box>
