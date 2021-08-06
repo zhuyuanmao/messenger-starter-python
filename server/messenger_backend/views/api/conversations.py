@@ -22,7 +22,8 @@ class Conversations(APIView):
             user_id = user.id
 
             conversations = (
-                Conversation.objects.filter(Q(user1=user_id) | Q(user2=user_id))
+                Conversation.objects.filter(
+                    Q(user1=user_id) | Q(user2=user_id))
                 .prefetch_related(
                     Prefetch(
                         "messages", queryset=Message.objects.order_by("createdAt")
@@ -37,7 +38,8 @@ class Conversations(APIView):
                 convo_dict = {
                     "id": convo.id,
                     "messages": [
-                        message.to_dict(["id", "text", "senderId", "readStatus","createdAt"])
+                        message.to_dict(
+                            ["id", "text", "senderId", "readStatus", "createdAt"])
                         for message in convo.messages.all()
                     ],
                 }
@@ -59,8 +61,22 @@ class Conversations(APIView):
                     convo_dict["otherUser"]["online"] = False
 
                 # set property for the number of unread messages
-                counts = convo.messages.all().exclude(senderId=user_id).filter(readStatus=False).count()
+                counts = convo.messages.all().exclude(
+                    senderId=user_id).filter(readStatus=False).count()
                 convo_dict["unreadMessagesCount"] = counts
+
+                # set property for bolding preview text.
+                if convo_dict["messages"][-1]["senderId"] != user_id:
+                    convo_dict["boldedPreviewText"] = not convo_dict["messages"][-1]["readStatus"]
+                else:
+                    convo_dict["boldedPreviewText"] = False
+
+                # set property for last read message.
+                convo_dict["lastReadMessage"] = -1
+                msgs = convo.messages.all().filter(
+                    readStatus=True).filter(senderId=user_id).order_by("-createdAt")
+                if msgs:
+                    convo_dict["lastReadMessage"] = msgs.first().id
 
                 conversations_response.append(convo_dict)
             conversations_response.sort(
@@ -73,8 +89,8 @@ class Conversations(APIView):
             )
         except Exception as e:
             return HttpResponse(status=500)
-    
-    def patch(self,request:Request, convo_id):
+
+    def patch(self, request: Request, convo_id):
         """update all messages in given conversation to read status.
         """
         try:
@@ -83,16 +99,28 @@ class Conversations(APIView):
             if user.is_anonymous:
                 return HttpResponse(status=401)
             user_id = user.id
-            convo =  Conversation.objects.filter(id=convo_id).filter(Q(user1=user_id) | Q(user2=user_id))
+            convo = Conversation.objects.filter(id=convo_id).filter(
+                Q(user1=user_id) | Q(user2=user_id))
             if not convo:
                 return JsonResponse(
-                    data={"error":"can not find the conversation"},
+                    data={"error": "can not find the conversation"},
                     safe=False,
                 )
             convo = convo.first()
-            convo.messages.all().update(readStatus=True)
-            return HttpResponse(status=200)
+            convo.messages.all().exclude(senderId=user_id).update(readStatus=True)
+
+            last_read_msg = -1
+            msgs = convo.messages.all().filter(
+                readStatus=True).exclude(senderId=user_id).order_by("-createdAt")
+            if msgs:
+                last_read_msg = msgs.first().id
+
+            return JsonResponse(
+                data={"lastReadMessage": last_read_msg,
+                      "conversationId": convo.id},
+                status=200,
+                safe=False
+            )
 
         except Exception as e:
             return HttpResponse(status=500)
-        

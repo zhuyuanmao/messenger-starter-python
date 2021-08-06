@@ -1,9 +1,8 @@
+from online_users import online_users
+import socketio
+import os
 async_mode = None
 
-import os
-
-import socketio
-from online_users import online_users
 
 basedir = os.path.dirname(os.path.realpath(__file__))
 sio = socketio.Server(async_mode=async_mode, logger=False)
@@ -27,6 +26,16 @@ def new_message(sid, message):
     sio.emit(
         "new-message",
         {"message": message["message"], "sender": message["sender"]},
+        skip_sid=sid,
+    )
+
+
+@sio.on("read-conversation")
+def read_conversation(sid, data):
+    sio.emit(
+        "read-conversation",
+        {"conversationId": data["conversationId"],
+         "lastReadMessage": data["lastReadMessage"]},
         skip_sid=sid,
     )
 

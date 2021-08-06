@@ -3,6 +3,7 @@ import { FormControl, FilledInput } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { postMessage } from "../../store/utils/thunkCreators";
+import { readMessages } from "../../store/utils/thunkCreators";
 
 const styles = {
   root: {
@@ -31,6 +32,13 @@ class Input extends Component {
     });
   };
 
+  handleFocus = async (event) => {
+    event.preventDefault();
+    if (this.props.unreadMessagesCount > 0){
+      await this.props.readMessages(this.props.conversationId);
+    }
+  }
+
   handleSubmit = async (event) => {
     event.preventDefault();
     // add sender user info if posting to a brand new convo, so that the other user will have access to username, profile pic, etc.
@@ -58,6 +66,7 @@ class Input extends Component {
             value={this.state.text}
             name="text"
             onChange={this.handleChange}
+            onFocus={this.handleFocus}
           />
         </FormControl>
       </form>
@@ -76,6 +85,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     postMessage: (message) => {
       dispatch(postMessage(message));
+    },
+    readMessages: (id) => {
+      dispatch(readMessages(id));
     },
   };
 };

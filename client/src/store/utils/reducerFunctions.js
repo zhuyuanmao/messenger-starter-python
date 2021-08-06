@@ -8,6 +8,7 @@ export const addMessageToStore = (state, payload) => {
       messages: [message],
     };
     newConvo.latestMessageText = message.text;
+    newConvo.unreadMessagesCount = 1;
     return [newConvo, ...state];
   }
 
@@ -16,7 +17,10 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = { ...convo };
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-
+      if (convo.otherUser.id === message.senderId){
+        convoCopy.boldedPreviewText = true;
+        convoCopy.unreadMessagesCount = convo.unreadMessagesCount + 1;
+      }
       return convoCopy;
     } else {
       return convo;
@@ -35,6 +39,24 @@ export const addOnlineUserToStore = (state, id) => {
     }
   });
 };
+
+export const updateUnreadMessagesCountToStore = (state, payload) =>{
+  const { lastReadMessage, conversationId } = payload;
+  return state.map((convo) => {
+    if (convo.id === conversationId){
+      const convoCopy = { ...convo };
+      convoCopy.boldedPreviewText = false;
+      if (lastReadMessage !== null){
+        convoCopy.lastReadMessage = lastReadMessage;
+      }
+      convoCopy.unreadMessagesCount = 0;
+      return convoCopy
+    }
+    else {
+      return convo;
+    }
+  })
+}
 
 export const removeOfflineUserFromStore = (state, id) => {
   return state.map((convo) => {
