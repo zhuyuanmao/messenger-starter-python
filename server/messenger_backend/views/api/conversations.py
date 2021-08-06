@@ -72,11 +72,11 @@ class Conversations(APIView):
                     convo_dict["boldedPreviewText"] = False
 
                 # set property for last read message.
-                convo_dict["lastReadMessage"] = -1
+                convo_dict["lastReadMessageId"] = -1
                 msgs = convo.messages.all().filter(
                     readStatus=True).filter(senderId=user_id).order_by("-createdAt")
                 if msgs:
-                    convo_dict["lastReadMessage"] = msgs.first().id
+                    convo_dict["lastReadMessageId"] = msgs.first().id
 
                 conversations_response.append(convo_dict)
             conversations_response.sort(
@@ -116,7 +116,7 @@ class Conversations(APIView):
                 last_read_msg = msgs.first().id
 
             return JsonResponse(
-                data={"lastReadMessage": last_read_msg,
+                data={"lastReadMessageId": last_read_msg,
                       "conversationId": convo.id},
                 status=200,
                 safe=False

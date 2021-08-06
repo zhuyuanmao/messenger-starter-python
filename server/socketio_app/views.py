@@ -35,7 +35,7 @@ def read_conversation(sid, data):
     sio.emit(
         "read-conversation",
         {"conversationId": data["conversationId"],
-         "lastReadMessage": data["lastReadMessage"]},
+         "lastReadMessageId": data["lastReadMessageId"]},
         skip_sid=sid,
     )
 
