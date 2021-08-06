@@ -65,12 +65,6 @@ class Conversations(APIView):
                     senderId=user_id).filter(readStatus=False).count()
                 convo_dict["unreadMessagesCount"] = counts
 
-                # set property for bolding preview text.
-                if convo_dict["messages"][-1]["senderId"] != user_id:
-                    convo_dict["boldedPreviewText"] = not convo_dict["messages"][-1]["readStatus"]
-                else:
-                    convo_dict["boldedPreviewText"] = False
-
                 # set property for last read message.
                 convo_dict["lastReadMessageId"] = -1
                 msgs = convo.messages.all().filter(
