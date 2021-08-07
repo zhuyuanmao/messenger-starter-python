@@ -79,7 +79,8 @@ def seed():
         )
         messages.save()
 
-    messages = Message(conversation=hualingConvo, senderId=hualing.id, text="😂 😂 😂")
+    messages = Message(conversation=hualingConvo,
+                       senderId=hualing.id, text="😂 😂 😂")
     messages.save()
 
     user = User(

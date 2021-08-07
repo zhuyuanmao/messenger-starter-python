@@ -43,8 +43,7 @@ def new_message(sid, message):
     sio.emit(
         "new-message",
         {"message": message["message"], "sender": message["sender"]},
-        room=str(message["recipientId"]
-                 )
+        room=str(message["recipientId"])
     )
 
 
