@@ -21,9 +21,13 @@ def connect(sid, environ, auth):
         decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         user = User.get_by_id(decoded["id"])
     except (jwt.ExpiredSignatureError, jwt.InvalidSignatureError, jwt.DecodeError):
+        sio.disconnect(sid)
         raise Exception("Authentication failed.")
     if not user:
+        sio.disconnect(sid)
         raise Exception("Can not find the user.")
+
+    sio.enter_room(sid, str(user.id))
     sio.emit("my_response", {"data": "Connected", "count": 0}, room=sid)
 
 
@@ -39,7 +43,8 @@ def new_message(sid, message):
     sio.emit(
         "new-message",
         {"message": message["message"], "sender": message["sender"]},
-        skip_sid=sid,
+        room=str(message["recipientId"]
+                 )
     )
 
 
@@ -49,7 +54,7 @@ def read_conversation(sid, data):
         "read-conversation",
         {"conversationId": data["conversationId"],
          "lastReadMessageId": data["lastReadMessageId"]},
-        skip_sid=sid,
+        room=str(data["recipientId"]),
     )
 
 
@@ -57,4 +62,5 @@ def read_conversation(sid, data):
 def logout(sid, user_id):
     if user_id in online_users:
         online_users.remove(user_id)
+    sio.close_room(str(user_id))
     sio.emit("remove-offline-user", user_id, skip_sid=sid)

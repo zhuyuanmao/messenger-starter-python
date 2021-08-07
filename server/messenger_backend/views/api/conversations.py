@@ -102,6 +102,7 @@ class Conversations(APIView):
                 )
             convo = convo.first()
             convo.messages.all().exclude(senderId=user_id).update(readStatus=True)
+            recipientId = convo.user1.id if convo.user1.id != user_id else convo.user2.id
 
             last_read_msg = -1
             msgs = convo.messages.all().filter(
@@ -111,7 +112,10 @@ class Conversations(APIView):
 
             return JsonResponse(
                 data={"lastReadMessageId": last_read_msg,
-                      "conversationId": convo.id},
+                      "conversationId": convo.id,
+                      "recipientId": recipientId
+                      },
+
                 status=200,
                 safe=False
             )

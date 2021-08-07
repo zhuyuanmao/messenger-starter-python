@@ -39,7 +39,7 @@ const ChatContent = (props) => {
           {otherUser.username}
         </Typography>
         <Typography 
-          className={!lastMsg.readStatus ?classes.unreadPreviewText: classes.previewText }
+          className={!lastMsg?.readStatus ?classes.unreadPreviewText: classes.previewText }
         >
           {latestMessageText}
         </Typography>

@@ -23,7 +23,11 @@ socket.on("connect", () => {
     store.dispatch(setNewMessage(data.message, data.sender));
   });
   socket.on("read-conversation", (data) => {
-    store.dispatch(realAllMessages(data.conversationId,data.lastReadMessageId));
+    const {conversationId, lastReadMessageId, recipientId} = data
+    store.dispatch(realAllMessages(conversationId,lastReadMessageId,recipientId));
+  });
+  socket.on('connect_error', (e) => {
+    console.log(e.message);
   });
 });
 
