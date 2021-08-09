@@ -27,7 +27,7 @@ socket.on("connect", () => {
     store.dispatch(realAllMessages(conversationId,lastReadMessageId,recipientId));
   });
   socket.on('connect_error', (e) => {
-    console.log(e.message);
+    console.error(e.message);
   });
 });
 
