@@ -6,7 +6,7 @@ import { setActiveChat } from "../../store/activeConversation";
 import { readMessages } from "../../store/utils/thunkCreators";
 import { useDispatch } from "react-redux";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     borderRadius: 8,
     height: 80,

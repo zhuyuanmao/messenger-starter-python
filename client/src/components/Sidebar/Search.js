@@ -4,7 +4,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import { makeStyles } from "@material-ui/core/styles";
 
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   filledInput: {
     height: 50,
     background: "#E9EEF9",
