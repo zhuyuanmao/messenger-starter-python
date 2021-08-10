@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box, Typography } from "@material-ui/core";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     alignItems: "center",
