@@ -4,16 +4,16 @@ import {  useDispatch, useSelector } from "react-redux";
 import { postMessage,readMessages } from "../../store/utils/thunkCreators";
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     justifySelf: "flex-end",
-    marginTop: 15,
+    marginTop: theme.spacing(1),
   },
   input: {
     height: 70,
     backgroundColor: "#F4F6FA",
     borderRadius: 8,
-    marginBottom: 20,
+    marginBottom: theme.spacing(1),
   },
 }));
 

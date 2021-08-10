@@ -49,9 +49,6 @@ const ChatContent = (props) => {
 }
 const unreadByCurrentUser = (user, conversation) => {
   const lastMsg = conversation.messages[conversation.messages.length-1];
-  if (lastMsg.senderId === user.id || lastMsg?.readStatus){
-    return false;
-  }
-  return true;
+  return lastMsg.senderId !== user.id && !lastMsg?.readStatus
 }
 export default ChatContent;
